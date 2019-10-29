@@ -12,6 +12,36 @@ You can avoid dependency conflict with this library.
 (require '[az-blob.core :as az])
 ```
 
+First of all, make account map from connection string.
+
+```
+(def ac (conn-str->map "DefaultEndpointsProtocol=https;...=core.windows.net"))
+```
+
+List containers.
+
+```
+(list-containers ac)
+```
+
+List blobs in a container.
+
+```
+(list-blobs ac "example")
+```
+
+Get Blob in a container.
+
+```
+(get-blob ac "example" "test.txt")
+```
+
+Put Blob to a container.
+
+```
+(put-blob "hello" ac "example" "hello.txt")
+```
+
 ## License
 
 Copyright © 2019 Koga Kazuo
