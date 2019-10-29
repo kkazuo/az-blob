@@ -1,4 +1,4 @@
-(defproject az-blob "0.1.0"
+(defproject az-blob "0.1.1"
   :description "A Clojure library designed to access Azure Blob Storage API without Azure SDK."
   :url "https://github.com/kkazuo/az-blob"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
