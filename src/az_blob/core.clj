@@ -90,10 +90,12 @@
                         (when resource
                           (str "/" resource)))
      :query-params (when-not (empty? query) query)
-     :headers      (conj headers
-                         {"authorization"
-                          (str "SharedKey " account ":"
-                               (.encodeToString b64-encoder (.doFinal mac)))})}))
+     :headers      (-> headers
+                       (dissoc "content-length")
+                       (conj
+                        {"authorization"
+                         (str "SharedKey " account ":"
+                              (.encodeToString b64-encoder (.doFinal mac)))}))}))
 
 (defn list-containers
   "List Containers
@@ -152,3 +154,37 @@
                     :query     query})
       h/request
       (dissoc :request)))
+
+(defn put-blob
+  "Put Blob
+  https://docs.microsoft.com/en-us/rest/api/storageservices/put-blob"
+  [content account container resource
+   &{:keys [headers query content-type blob-type]
+     :or   {headers      {}
+            query        {}
+            blob-type    "BlockBlob"
+            content-type "application/octet-stream"}}]
+  (let [body (cond
+               (= (type content) java.lang.String)
+               {:content-type "text/plain; charset=utf-8"
+                :content      (.getBytes content "UTF-8")}
+
+               :otherwise
+               {:content-type content-type
+                :content      content})]
+    (-> (produce-sig {:secret    (:AccountKey account)
+                      :account   (:AccountName account)
+                      :scheme    (:DefaultEndpointsProtocol account)
+                      :suffix    (:EndpointSuffix account)
+                      :container container
+                      :resource  resource
+                      :method    :put
+                      :headers   (conj headers
+                                       {"content-type"   (:content-type body)
+                                        "content-length" (str (alength (:content body)))
+                                        "x-ms-blob-type" blob-type})
+                      :query     query})
+        (conj {:body (:content body)})
+        (conj {:throw-exceptions? false})
+        h/request
+        (dissoc :request))))
