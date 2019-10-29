@@ -185,6 +185,5 @@
                                         "x-ms-blob-type" blob-type})
                       :query     query})
         (conj {:body (:content body)})
-        (conj {:throw-exceptions? false})
         h/request
         (dissoc :request))))
